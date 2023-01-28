@@ -1,0 +1,9 @@
+[package]
+name = "harness"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+penrose = "0.3"
+penrose_ui = "0.1.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
