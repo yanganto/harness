@@ -19,20 +19,19 @@
         deps = with pkgs; [
           xorg.libX11
           xorg.libXinerama
+          xorg.xmodmap
         ];
 
         devToolchain = fenix.packages.${system}.stable;
 
-        leftwm = ((naersk.lib.${system}.override {
+        harness = ((naersk.lib.${system}.override {
           inherit (fenix.packages.${system}.minimal) cargo rustc;
         }).buildPackage {
-          name = "leftwm";
+          name = "harness";
           src = ./.;
           buildInputs = deps;
           postFixup = ''
-            for p in $out/bin/left*; do
-              patchelf --set-rpath "${pkgs.lib.makeLibraryPath deps}" $p
-            done
+            patchelf --set-rpath "${pkgs.lib.makeLibraryPath deps}" $out/bin/harness
           '';
 
           GIT_HASH = self.shortRev or "dirty";
@@ -41,16 +40,16 @@
       rec {
         # `nix build`
         packages = {
-          inherit leftwm;
-          default = leftwm;
+          inherit harness;
+          default = harness;
         };
 
         # `nix run`
         apps = {
-          leftwm = flake-utils.lib.mkApp {
-            drv = packages.leftwm;
+          harness = flake-utils.lib.mkApp {
+            drv = packages.harness;
           };
-          default = apps.leftwm;
+          default = apps.harness;
         };
 
         # `nix develop`
@@ -71,7 +70,7 @@
           };
       })) // {
       overlay = final: prev: {
-        leftwm = self.packages.${final.system}.leftwm;
+        harness = self.packages.${final.system}.harness;
       };
     };
 }
